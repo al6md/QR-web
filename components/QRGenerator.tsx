@@ -319,6 +319,7 @@ export default function QRGenerator() {
   const [isDownloading, setIsDownloading] = useState(false);
   const [activeTab, setActiveTab] = useState<'content' | 'style' | 'logo' | 'presets'>('content');
   const [toastNotification, setToastNotification] = useState<string | null>(null);
+  const [printImageSrc, setPrintImageSrc] = useState<string | null>(null);
 
   // History state
   const [history, setHistory] = useState<HistoryItem[]>([]);
@@ -888,8 +889,200 @@ export default function QRGenerator() {
   };
 
   // Print QR Code
-  const handlePrint = () => {
-    window.print();
+  const handlePrint = async () => {
+    try {
+      const canvas = qrContainerRef.current?.querySelector('canvas');
+      let dataUrl = canvas?.toDataURL('image/png') || '';
+
+      if (!dataUrl && qrCodeInstanceRef.current) {
+        try {
+          const QRCodeStyling = (await import('qr-code-styling')).default;
+          const printOptions = getQRCodeOptions(800, 800);
+          const printQR = new QRCodeStyling(printOptions);
+          const rawBlob = await printQR.getRawData('png');
+          if (rawBlob) {
+            dataUrl = await new Promise((resolve) => {
+              const reader = new FileReader();
+              reader.onloadend = () => resolve(reader.result as string);
+              reader.readAsDataURL(rawBlob as Blob);
+            });
+          }
+        } catch (e) {
+          console.warn('Fallback print render', e);
+        }
+      }
+
+      if (!dataUrl) {
+        window.print();
+        return;
+      }
+
+      setPrintImageSrc(dataUrl);
+
+      let payloadSummary = '';
+      switch (dataType) {
+        case 'url':
+          payloadSummary = `رابط الموقع: ${urlInput}`;
+          break;
+        case 'wifi':
+          payloadSummary = `اسم شبكة الواي فاي: ${wifiData.ssid || 'Wi-Fi'} · التشفير: ${wifiData.encryption}`;
+          break;
+        case 'vcard':
+          payloadSummary = `بطاقة عمل: ${vCardData.firstName} ${vCardData.lastName} ${vCardData.phoneMobile ? `· جوال: ${vCardData.phoneMobile}` : ''}`;
+          break;
+        case 'email':
+          payloadSummary = `البريد الإلكتروني: ${emailData.to}`;
+          break;
+        case 'sms':
+          payloadSummary = `رقم الرسالة القصيرة: ${smsData.phone}`;
+          break;
+        case 'phone':
+          payloadSummary = `رقم الهاتف المباشر: ${phoneInput}`;
+          break;
+        case 'location':
+          payloadSummary = `الموقع الجغرافي: ${locationData.lat}, ${locationData.lng}`;
+          break;
+        default:
+          payloadSummary = textInput ? textInput.slice(0, 80) : 'رمز استجابة سريعة مخصص';
+      }
+
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(`
+          <!DOCTYPE html>
+          <html lang="ar" dir="rtl">
+          <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>طباعة رمز الاستجابة السريعة (QR Code)</title>
+            <link rel="preconnect" href="https://fonts.googleapis.com" />
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+            <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&display=swap" rel="stylesheet" />
+            <style>
+              @page {
+                size: A4 portrait;
+                margin: 12mm;
+              }
+              * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+              }
+              body {
+                font-family: 'Cairo', sans-serif;
+                background-color: #ffffff;
+                color: #0f172a;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh;
+                padding: 16px;
+                text-align: center;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+              }
+              .print-card {
+                max-width: 500px;
+                width: 100%;
+                border: 3px solid #0f172a;
+                border-radius: 24px;
+                padding: 32px 24px;
+                box-shadow: 6px 6px 0px #0f172a;
+                background: #ffffff;
+                margin: 0 auto;
+                page-break-inside: avoid;
+                break-inside: avoid;
+              }
+              .badge {
+                display: inline-block;
+                padding: 4px 14px;
+                border-radius: 9999px;
+                background-color: #bef264;
+                border: 2px solid #0f172a;
+                font-size: 12px;
+                font-weight: 800;
+                margin-bottom: 14px;
+              }
+              h1 {
+                font-size: 22px;
+                font-weight: 900;
+                margin-bottom: 6px;
+                color: #0f172a;
+              }
+              p.desc {
+                font-size: 12px;
+                font-weight: 700;
+                color: #475569;
+                margin-bottom: 20px;
+                line-height: 1.5;
+                word-break: break-word;
+              }
+              .qr-frame {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 16px;
+                border: 3px solid #0f172a;
+                border-radius: 20px;
+                background: #ffffff;
+                box-shadow: 4px 4px 0px #0f172a;
+                margin-bottom: 20px;
+              }
+              .qr-img {
+                width: 260px;
+                height: 260px;
+                object-fit: contain;
+                display: block;
+              }
+              .scan-instruction {
+                font-size: 13px;
+                font-weight: 800;
+                color: #0f172a;
+                margin-bottom: 4px;
+              }
+              .footer-text {
+                font-size: 10px;
+                font-weight: 700;
+                color: #64748b;
+                margin-top: 14px;
+                border-top: 1px dashed #cbd5e1;
+                padding-top: 10px;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="print-card">
+              <div class="badge">رمز QR قابل للمسح المباشر</div>
+              <h1>رمز الاستجابة السريعة (QR Code)</h1>
+              <p class="desc">${payloadSummary}</p>
+              <div class="qr-frame">
+                <img class="qr-img" src="${dataUrl}" alt="QR Code" />
+              </div>
+              <div class="scan-instruction">📷 امسح الرمز بواسطة كاميرا هاتفك الذكي للوصول المباشر</div>
+              <div class="footer-text">مولّد رموز QR الاحترافي · https://qr-web-ten-beta.vercel.app</div>
+            </div>
+            <script>
+              window.onload = function() {
+                setTimeout(function() {
+                  window.print();
+                }, 300);
+              };
+            </script>
+          </body>
+          </html>
+        `);
+        printWindow.document.close();
+      } else {
+        // Fallback for mobile / popup blockers
+        setTimeout(() => {
+          window.print();
+        }, 150);
+      }
+    } catch (err) {
+      console.error('Print failed:', err);
+      window.print();
+    }
   };
 
   return (
@@ -2233,12 +2426,28 @@ export default function QRGenerator() {
       </footer>
 
       {/* Hidden Print Area */}
-      <div id="qr-print-area" className="hidden print:flex flex-col items-center justify-center p-8 text-black bg-white">
-        <h2 className="text-2xl font-black mb-4">رمز الاستجابة السريعة (QR Code)</h2>
-        <div className="p-4 border-4 border-black rounded-xl">
-          {/* Print will capture canvas elements natively */}
+      <div id="qr-print-area" className="hidden print:flex flex-col items-center justify-center min-h-screen p-6 text-black bg-white">
+        <div className="max-w-[480px] w-full border-3 border-black rounded-3xl p-8 text-center bg-white shadow-[4px_4px_0px_#000000]">
+          <div className="inline-block px-4 py-1 rounded-full bg-lime-300 border-2 border-black font-black text-xs mb-4">
+            رمز QR مباشر
+          </div>
+          <h2 className="text-2xl font-black mb-2 text-black">رمز الاستجابة السريعة (QR Code)</h2>
+          <p className="text-xs font-bold text-slate-700 mb-6 break-words">
+            {dataType === 'url' ? `رابط الموقع: ${urlInput}` : dataType === 'wifi' ? `شبكة: ${wifiData.ssid || 'Wi-Fi'}` : dataType === 'vcard' ? `بطاقة عمل: ${vCardData.firstName} ${vCardData.lastName}` : 'امسح الرمز عبر كاميرا هاتفك الذكي'}
+          </p>
+          <div className="inline-block p-4 border-3 border-black rounded-2xl bg-white shadow-[3px_3px_0px_#000000] mb-6">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={printImageSrc || (qrContainerRef.current?.querySelector('canvas')?.toDataURL('image/png') ?? '')}
+              alt="QR Code"
+              className="w-64 h-64 object-contain mx-auto"
+            />
+          </div>
+          <p className="text-sm font-black text-black">📷 امسح الرمز بواسطة كاميرا هاتفك الذكي</p>
+          <p className="text-[10px] font-bold text-slate-500 mt-4 pt-3 border-t border-slate-300">
+            مولّد رموز QR الاحترافي · https://qr-web-ten-beta.vercel.app
+          </p>
         </div>
-        <p className="mt-4 text-sm font-bold text-gray-800">امسح الرمز بواسطة كاميرا الهاتف الذكي</p>
       </div>
 
       {/* Download History Modal */}
