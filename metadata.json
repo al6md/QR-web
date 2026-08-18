@@ -1,0 +1,6 @@
+{
+  "name": "Advanced QR Code Generator",
+  "description": "A feature-packed client-side Advanced QR Code Generator supporting Arabic language (RTL), dynamic data formats (URL, Wi-Fi, vCard, SMS, Email, Text), live customization (gradients, dots, corner shapes, custom logos), high-res PNG/SVG/JPEG export, and clipboard copy.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

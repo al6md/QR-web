@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>مولّد رموز الاستجابة السريعة المتقدم | Advanced QR Code Generator</title>
+  <meta name="description" content="أداة عميل متقدمة لتوليد رموز QR مخصصة واحترافية بالكامل مع دعم للروابط والواي فاي وبطاقات العمل والشعارات وتصدير 4K." />
+
+  <!-- Google Fonts: Cairo -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            arabic: ['Cairo', 'sans-serif'],
+          },
+        },
+      },
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <!-- QR Code Styling Library -->
+  <script src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100 antialiased font-['Cairo',sans-serif] selection:bg-indigo-500 selection:text-white py-6 sm:py-10">
+
+  <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8" id="qr-app-root">
+
+    <!-- Header Section -->
+    <header class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-slate-800 p-6 md:p-8 shadow-2xl">
+      <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div class="space-y-3">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-indigo-400"></i>
+            <span>أداة عميل مجانية 100% بدون خادم أو إعلانات (جاهزة لـ GitHub Pages)</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight flex items-center gap-3">
+            <span class="p-2.5 rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 flex items-center justify-center">
+              <i data-lucide="qr-code" class="w-7 h-7 sm:w-8 sm:h-8"></i>
+            </span>
+            مولّد رموز الاستجابة السريعة المتقدم
+          </h1>
+          <p class="text-slate-300 text-sm sm:text-base max-w-2xl leading-relaxed">
+            أنشئ رموز QR احترافية وديناميكية قابلة للتخصيص الكامل: روابط، شبكات Wi-Fi، بطاقات عمل vCard، ألوان وتدرجات متقدمة، شعارات بالمنتصف، وتصدير فائق الدقة (4K).
+          </p>
+        </div>
+
+        <div class="flex items-center gap-3 w-full md:w-auto">
+          <button
+            type="button"
+            id="reset-config-btn"
+            class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800/60 hover:bg-slate-700 text-slate-300 border border-slate-700 text-sm font-medium transition-all"
+            title="إعادة تعيين للإعدادات الافتراضية"
+          >
+            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+            <span>إعادة ضبط</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Layout Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+      <!-- Left Column: Controls (7 Cols) -->
+      <div class="lg:col-span-7 space-y-6">
+
+        <!-- Navigation Tabs -->
+        <div class="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-800/80 border border-slate-700/80 backdrop-blur overflow-x-auto" id="tabs-navigation">
+          <button
+            type="button"
+            data-main-tab="content"
+            class="flex-1 min-w-[100px] flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+          >
+            <i data-lucide="file-text" class="w-4 h-4"></i>
+            <span>1. المحتوى والبيانات</span>
+          </button>
+          <button
+            type="button"
+            data-main-tab="style"
+            class="flex-1 min-w-[100px] flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-700/50"
+          >
+            <i data-lucide="palette" class="w-4 h-4"></i>
+            <span>2. الأنماط والألوان</span>
+          </button>
+          <button
+            type="button"
+            data-main-tab="logo"
+            class="flex-1 min-w-[100px] flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-700/50"
+          >
+            <i data-lucide="image" class="w-4 h-4"></i>
+            <span>3. الشعار والوسط</span>
+          </button>
+          <button
+            type="button"
+            data-main-tab="presets"
+            class="flex-1 min-w-[100px] flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-700/50"
+          >
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+            <span>4. قوالب جاهزة</span>
+          </button>
+        </div>
+
+        <!-- TAB 1: CONTENT -->
+        <div data-tab-content="content" class="space-y-6 rounded-3xl bg-slate-800/40 border border-slate-700/80 p-6 backdrop-blur" id="content-forms-section">
+          <div>
+            <label class="block text-sm font-semibold text-slate-200 mb-3">
+              اختر نوع البيانات المراد تضمينها في الرمز:
+            </label>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              <button
+                type="button"
+                data-datatype="url"
+                class="flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border text-xs font-semibold transition-all bg-indigo-600/20 border-indigo-500 text-white shadow-sm ring-1 ring-indigo-500"
+              >
+                <i data-lucide="link" class="w-5 h-5 text-indigo-400"></i>
+                <span>رابط موقع / سوشيال</span>
+              </button>
+              <button
+                type="button"
+                data-datatype="wifi"
+                class="flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border text-xs font-semibold transition-all bg-slate-900/40 border-slate-700/70 text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+              >
+                <i data-lucide="wifi" class="w-5 h-5 text-slate-400"></i>
+                <span>شبكة Wi-Fi</span>
+              </button>
+              <button
+                type="button"
+                data-datatype="vcard"
+                class="flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border text-xs font-semibold transition-all bg-slate-900/40 border-slate-700/70 text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+              >
+                <i data-lucide="contact" class="w-5 h-5 text-slate-400"></i>
+                <span>بطاقة عمل vCard</span>
+              </button>
+              <button
+                type="button"
+                data-datatype="text"
+                class="flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border text-xs font-semibold transition-all bg-slate-900/40 border-slate-700/70 text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+              >
+                <i data-lucide="file-text" class="w-5 h-5 text-slate-400"></i>
+                <span>نص مخصص</span>
+              </button>
+              <button
+                type="button"
+                data-datatype="email"
+                class="flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border text-xs font-semibold transition-all bg-slate-900/40 border-slate-700/70 text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+              >
+                <i data-lucide="mail" class="w-5 h-5 text-slate-400"></i>
+                <span>بريد إلكتروني</span>
+              </button>
+              <button
+                type="button"
+                data-datatype="sms"
+                class="flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border text-xs font-semibold transition-all bg-slate-900/40 border-slate-700/70 text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+              >
+                <i data-lucide="message-square" class="w-5 h-5 text-slate-400"></i>
+                <span>رسالة SMS</span>
+              </button>
+              <button
+                type="button"
+                data-datatype="phone"
+                class="flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border text-xs font-semibold transition-all bg-slate-900/40 border-slate-700/70 text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+              >
+                <i data-lucide="phone" class="w-5 h-5 text-slate-400"></i>
+                <span>رقم هاتف مباشر</span>
+              </button>
+              <button
+                type="button"
+                data-datatype="location"
+                class="flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border text-xs font-semibold transition-all bg-slate-900/40 border-slate-700/70 text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+              >
+                <i data-lucide="map-pin" class="w-5 h-5 text-slate-400"></i>
+                <span>موقع جغرافي</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Sub Form Panels -->
+          <div class="pt-4 border-t border-slate-700/60 space-y-4">
+
+            <!-- URL Panel -->
+            <div data-form-panel="url" class="space-y-3">
+              <label class="block text-sm font-medium text-slate-200" for="url-input-field">
+                رابط الموقع أو الحساب الإلكتروني (URL):
+              </label>
+              <div class="relative">
+                <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400">
+                  <i data-lucide="link" class="w-5 h-5"></i>
+                </div>
+                <input
+                  type="url"
+                  id="url-input-field"
+                  value="https://github.com"
+                  placeholder="https://example.com/profile"
+                  class="w-full pl-4 pr-11 py-3 bg-slate-900/80 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm transition"
+                  dir="ltr"
+                />
+              </div>
+            </div>
+
+            <!-- Wi-Fi Panel -->
+            <div data-form-panel="wifi" class="hidden space-y-4">
+              <div class="p-3.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs flex items-center gap-2.5">
+                <i data-lucide="info" class="w-4 h-4 flex-shrink-0"></i>
+                <span>يتيح مسح الرمز للأجهزة الاتصال بالشبكة تلقائياً دون كتابة كلمة المرور يدوياً.</span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1.5" for="wifi-ssid">اسم الشبكة (SSID):</label>
+                  <input type="text" id="wifi-ssid" value="MyHome_5G" class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-indigo-500" dir="ltr" />
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1.5" for="wifi-password">كلمة المرور (Password):</label>
+                  <input type="text" id="wifi-password" value="SecurePassword123" class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-indigo-500 disabled:opacity-40" dir="ltr" />
+                </div>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1.5" for="wifi-encryption">نوع التشفير (Security Type):</label>
+                  <select id="wifi-encryption" class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-indigo-500">
+                    <option value="WPA">WPA / WPA2 / WPA3 (الأكثر شيوعاً)</option>
+                    <option value="WEP">WEP</option>
+                    <option value="None">شبكة مفتوحة بدون كلمة مرور (None)</option>
+                  </select>
+                </div>
+                <div class="flex items-center gap-3 pt-4 sm:pt-6">
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="wifi-hidden-checkbox" class="sr-only peer" />
+                    <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                  </label>
+                  <span class="text-xs text-slate-300">شبكة مخفية (Hidden SSID)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- vCard Panel -->
+            <div data-form-panel="vcard" class="hidden space-y-4">
+              <div class="p-3.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs flex items-center gap-2.5">
+                <i data-lucide="contact" class="w-4 h-4 flex-shrink-0"></i>
+                <span>بطاقة عمل رقمية قياسية (vCard 3.0) تُحفظ جهة الاتصال بضغطة زر واحدة في هاتف المستخدم.</span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1" for="vcard-fname">الاسم الأول:</label>
+                  <input type="text" id="vcard-fname" value="محمد" class="w-full px-3 py-2 bg-slate-900/80 border border-slate-700 rounded-xl text-white text-sm" />
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1" for="vcard-lname">اسم العائلة / اللقب:</label>
+                  <input type="text" id="vcard-lname" value="أحمد" class="w-full px-3 py-2 bg-slate-900/80 border border-slate-700 rounded-xl text-white text-sm" />
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1" for="vcard-org">الشركة / المنظمة:</label>
+                  <input type="text" id="vcard-org" value="شركة التقنية المتقدمة" class="w-full px-3 py-2 bg-slate-900/80 border border-slate-700 rounded-xl text-white text-sm" />
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1" for="vcard-title">المسمى الوظيفي:</label>
+                  <input type="text" id="vcard-title" value="مهندس برمجيات أول" class="w-full px-3 py-2 bg-slate-900/80 border border-slate-700 rounded-xl text-white text-sm" />
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1" for="vcard-mobile">رقم الجوال:</label>
+                  <input type="tel" id="vcard-mobile" value="+966511111111" class="w-full px-3 py-2 bg-slate-900/80 border border-slate-700 rounded-xl text-white text-sm font-mono" dir="ltr" />
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1" for="vcard-work-phone">هاتف العمل:</label>
+                  <input type="tel" id="vcard-work-phone" value="+966500000000" class="w-full px-3 py-2 bg-slate-900/80 border border-slate-700 rounded-xl text-white text-sm font-mono" dir="ltr" />
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1" for="vcard-email">البريد الإلكتروني:</label>
+                  <input type="email" id="vcard-email" value="mohammed@example.com" class="w-full px-3 py-2 bg-slate-900/80 border border-slate-700 rounded-xl text-white text-sm" dir="ltr" />
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1" for="vcard-website">الموقع الإلكتروني:</label>
+                  <input type="url" id="vcard-website" value="https://example.com" class="w-full px-3 py-2 bg-slate-900/80 border border-slate-700 rounded-xl text-white text-sm" dir="ltr" />
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1" for="vcard-address">العنوان / المدينة:</label>
+                <input type="text" id="vcard-address" value="الرياض، المملكة العربية السعودية" class="w-full px-3 py-2 bg-slate-900/80 border border-slate-700 rounded-xl text-white text-sm" />
+              </div>
+            </div>
+
+            <!-- Plain Text Panel -->
+            <div data-form-panel="text" class="hidden space-y-3">
+              <div class="flex items-center justify-between">
+                <label class="block text-sm font-medium text-slate-200" for="text-content-area">النص المراد تشفيره:</label>
+                <span class="text-xs text-slate-400" id="text-char-count">48 حرف</span>
+              </div>
+              <textarea id="text-content-area" rows="4" class="w-full p-3.5 bg-slate-900/80 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-indigo-500 leading-relaxed">مرحباً بك! هذا رمز استجابة سريعة احترافي ومخصص.</textarea>
+            </div>
+
+            <!-- Email Panel -->
+            <div data-form-panel="email" class="hidden space-y-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1" for="email-to">البريد الإلكتروني المستلم:</label>
+                <input type="email" id="email-to" value="contact@example.com" class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl text-white text-sm font-mono" dir="ltr" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1" for="email-subject">موضوع الرسالة:</label>
+                <input type="text" id="email-subject" value="استفسار عن الخدمات" class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl text-white text-sm" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1" for="email-body">نص الرسالة:</label>
+                <textarea id="email-body" rows="3" class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl text-white text-sm">السلام عليكم ورحمة الله، أود الاستفسار بخصوص...</textarea>
+              </div>
+            </div>
+
+            <!-- SMS Panel -->
+            <div data-form-panel="sms" class="hidden space-y-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1" for="sms-phone">رقم الهاتف المستلم:</label>
+                <input type="tel" id="sms-phone" value="+966500000000" class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl text-white text-sm font-mono" dir="ltr" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1" for="sms-msg">نص الرسالة القصيرة:</label>
+                <textarea id="sms-msg" rows="3" class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl text-white text-sm">مرحباً، أرجو التواصل معي بخصوص...</textarea>
+              </div>
+            </div>
+
+            <!-- Phone Panel -->
+            <div data-form-panel="phone" class="hidden space-y-3">
+              <label class="block text-sm font-medium text-slate-200" for="phone-input">رقم الهاتف للاتصال المباشر:</label>
+              <input type="tel" id="phone-input" value="+966500000000" class="w-full px-4 py-3 bg-slate-900/80 border border-slate-700 rounded-xl text-white text-sm font-mono focus:ring-2 focus:ring-indigo-500" dir="ltr" />
+            </div>
+
+            <!-- Location Panel -->
+            <div data-form-panel="location" class="hidden space-y-3">
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1" for="loc-lat">خط العرض (Latitude):</label>
+                  <input type="text" id="loc-lat" value="24.7136" class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl text-white text-sm font-mono" dir="ltr" />
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1" for="loc-lng">خط الطول (Longitude):</label>
+                  <input type="text" id="loc-lng" value="46.6753" class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl text-white text-sm font-mono" dir="ltr" />
+                </div>
+              </div>
+              <button type="button" id="get-geo-btn" class="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1.5">
+                <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                <span>جلب موقعي الحالي تلقائياً</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- TAB 2: STYLES & COLORS -->
+        <div data-tab-content="style" class="hidden space-y-6 rounded-3xl bg-slate-800/40 border border-slate-700/80 p-6 backdrop-blur">
+          <!-- Dots Style -->
+          <div class="space-y-3">
+            <label class="block text-sm font-semibold text-slate-200">شكل النقاط الداخلية (Dots Pattern):</label>
+            <div class="grid grid-cols-3 sm:grid-cols-6 gap-2">
+              <button type="button" data-dot-style="rounded" class="p-2.5 rounded-xl border text-xs font-medium bg-indigo-600 border-indigo-500 text-white shadow">دائري ناعم</button>
+              <button type="button" data-dot-style="dots" class="p-2.5 rounded-xl border text-xs font-medium bg-slate-900/60 border-slate-700 text-slate-400 hover:text-white">نقاط</button>
+              <button type="button" data-dot-style="classy" class="p-2.5 rounded-xl border text-xs font-medium bg-slate-900/60 border-slate-700 text-slate-400 hover:text-white">كلاسيكي</button>
+              <button type="button" data-dot-style="classy-rounded" class="p-2.5 rounded-xl border text-xs font-medium bg-slate-900/60 border-slate-700 text-slate-400 hover:text-white">كلاسيكي مدور</button>
+              <button type="button" data-dot-style="square" class="p-2.5 rounded-xl border text-xs font-medium bg-slate-900/60 border-slate-700 text-slate-400 hover:text-white">مربعات</button>
+              <button type="button" data-dot-style="extra-rounded" class="p-2.5 rounded-xl border text-xs font-medium bg-slate-900/60 border-slate-700 text-slate-400 hover:text-white">مستدير كامل</button>
+            </div>
+          </div>
+
+          <!-- Color Mode / Gradient -->
+          <div class="pt-4 border-t border-slate-700/60 space-y-4">
+            <div class="flex items-center justify-between">
+              <label class="text-sm font-semibold text-slate-200">ألوان النقاط والتدرج (Color / Gradient):</label>
+              <div class="flex items-center gap-2">
+                <button type="button" id="btn-single-color" class="px-3 py-1 rounded-lg text-xs font-semibold bg-indigo-600 text-white">لون موحد</button>
+                <button type="button" id="btn-gradient-color" class="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-800 text-slate-400">تدرج لوني</button>
+              </div>
+            </div>
+
+            <!-- Single Color Panel -->
+            <div id="single-color-panel" class="flex items-center gap-3">
+              <input type="color" id="single-color-picker" value="#1e40af" class="w-12 h-10 rounded-xl bg-slate-900 border border-slate-700 cursor-pointer" />
+              <input type="text" id="single-color-hex" value="#1e40af" class="w-32 px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs font-mono" dir="ltr" />
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <button type="button" data-swatch="#000000" class="w-6 h-6 rounded-full border border-white/20 hover:scale-110 transition bg-black"></button>
+                <button type="button" data-swatch="#1e40af" class="w-6 h-6 rounded-full border border-white/20 hover:scale-110 transition bg-blue-800"></button>
+                <button type="button" data-swatch="#047857" class="w-6 h-6 rounded-full border border-white/20 hover:scale-110 transition bg-emerald-700"></button>
+                <button type="button" data-swatch="#be123c" class="w-6 h-6 rounded-full border border-white/20 hover:scale-110 transition bg-rose-700"></button>
+                <button type="button" data-swatch="#7c3aed" class="w-6 h-6 rounded-full border border-white/20 hover:scale-110 transition bg-purple-600"></button>
+              </div>
+            </div>
+
+            <!-- Gradient Panel -->
+            <div id="gradient-color-panel" class="hidden space-y-4 p-4 rounded-2xl bg-slate-900/60 border border-slate-700/60">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs text-slate-400 mb-1.5">اللون الأول (Start Color):</label>
+                  <div class="flex items-center gap-2">
+                    <input type="color" id="grad-c1-picker" value="#1e40af" class="w-10 h-9 rounded-lg bg-slate-900 border border-slate-700 cursor-pointer" />
+                    <input type="text" id="grad-c1-hex" value="#1e40af" class="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-white text-xs font-mono" dir="ltr" />
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-xs text-slate-400 mb-1.5">اللون الثاني (End Color):</label>
+                  <div class="flex items-center gap-2">
+                    <input type="color" id="grad-c2-picker" value="#3b82f6" class="w-10 h-9 rounded-lg bg-slate-900 border border-slate-700 cursor-pointer" />
+                    <input type="text" id="grad-c2-hex" value="#3b82f6" class="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-white text-xs font-mono" dir="ltr" />
+                  </div>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+                <div>
+                  <label class="block text-xs text-slate-400 mb-1.5">نوع التدرج:</label>
+                  <select id="gradient-type-select" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs">
+                    <option value="linear">خطي (Linear)</option>
+                    <option value="radial">دائري / شعاعي (Radial)</option>
+                  </select>
+                </div>
+                <div>
+                  <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+                    <span>زاوية التدوير:</span>
+                    <span id="gradient-rotation-val" class="font-mono">45°</span>
+                  </div>
+                  <input type="range" id="gradient-rotation-slider" min="0" max="360" step="15" value="45" class="w-full accent-indigo-500" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Corners & Eyes Customization -->
+          <div class="pt-4 border-t border-slate-700/60 space-y-4">
+            <label class="block text-sm font-semibold text-slate-200">تخصيص زوايا التحديد (Corner Eyes & Dots):</label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Corner Square -->
+              <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-700/60 space-y-3">
+                <span class="text-xs font-medium text-slate-300">مربع الزاوية الخارجي (Corner Square):</span>
+                <div class="grid grid-cols-3 gap-1.5">
+                  <button type="button" data-cornersquare="square" class="py-1.5 px-2 rounded-lg text-xs font-medium bg-slate-800 text-slate-400">مربع</button>
+                  <button type="button" data-cornersquare="extra-rounded" class="py-1.5 px-2 rounded-lg text-xs font-medium bg-indigo-600 text-white">مستدير</button>
+                  <button type="button" data-cornersquare="dot" class="py-1.5 px-2 rounded-lg text-xs font-medium bg-slate-800 text-slate-400">دائري</button>
+                </div>
+                <div class="flex items-center gap-2">
+                  <input type="color" id="cornersquare-color-picker" value="#1e3a8a" class="w-8 h-8 rounded bg-slate-900 border border-slate-700 cursor-pointer" />
+                  <input type="text" id="cornersquare-color-hex" value="#1e3a8a" class="w-28 px-2 py-1 bg-slate-900 border border-slate-700 rounded text-xs font-mono text-white" dir="ltr" />
+                </div>
+              </div>
+
+              <!-- Corner Dot -->
+              <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-700/60 space-y-3">
+                <span class="text-xs font-medium text-slate-300">نقطة الزاوية الداخلية (Corner Dot):</span>
+                <div class="grid grid-cols-2 gap-1.5">
+                  <button type="button" data-cornerdot="dot" class="py-1.5 px-2 rounded-lg text-xs font-medium bg-indigo-600 text-white">نقطة دائرية</button>
+                  <button type="button" data-cornerdot="square" class="py-1.5 px-2 rounded-lg text-xs font-medium bg-slate-800 text-slate-400">مربع</button>
+                </div>
+                <div class="flex items-center gap-2">
+                  <input type="color" id="cornerdot-color-picker" value="#2563eb" class="w-8 h-8 rounded bg-slate-900 border border-slate-700 cursor-pointer" />
+                  <input type="text" id="cornerdot-color-hex" value="#2563eb" class="w-28 px-2 py-1 bg-slate-900 border border-slate-700 rounded text-xs font-mono text-white" dir="ltr" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Background & Margins -->
+          <div class="pt-4 border-t border-slate-700/60 space-y-4">
+            <label class="block text-sm font-semibold text-slate-200">الخلفية وهوامش الأمان (Background & Margins):</label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+              <div class="flex items-center gap-4">
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="bg-transparent-toggle" class="sr-only peer" />
+                  <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                </label>
+                <span class="text-xs text-slate-300">خلفية شفافة (Transparent)</span>
+              </div>
+              <div id="bg-color-wrapper" class="flex items-center gap-2">
+                <input type="color" id="bg-color-picker" value="#ffffff" class="w-9 h-9 rounded-lg bg-slate-900 border border-slate-700 cursor-pointer" />
+                <input type="text" id="bg-color-hex" value="#ffffff" class="w-28 px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs font-mono text-white" dir="ltr" />
+              </div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+                <span>الهامش الخارجي (Quiet Zone Margin):</span>
+                <span id="quietzone-val" class="font-mono">10px</span>
+              </div>
+              <input type="range" id="quietzone-slider" min="0" max="40" value="10" class="w-full accent-indigo-500" />
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: LOGO -->
+        <div data-tab-content="logo" class="hidden space-y-6 rounded-3xl bg-slate-800/40 border border-slate-700/80 p-6 backdrop-blur">
+          <div class="space-y-2">
+            <h3 class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+              <i data-lucide="image" class="w-4 h-4 text-indigo-400"></i>
+              <span>إضافة شعار في منتصف رمز QR:</span>
+            </h3>
+            <p class="text-xs text-slate-400">
+              يمكنك رفع شعار شركتك أو اختيار أحد الشعارات الشائعة الجاهزة أدناه. يتم ضبط نسبة تصحيح الأخطاء تلقائياً لضمان سهولة المسح.
+            </p>
+          </div>
+
+          <!-- Dropzone -->
+          <div class="border-2 border-dashed border-slate-700 hover:border-indigo-500/80 rounded-2xl p-6 text-center transition bg-slate-900/30">
+            <input type="file" id="logo-file-input" accept="image/png,image/jpeg,image/svg+xml,image/webp" class="hidden" />
+            <label for="logo-file-input" class="cursor-pointer space-y-3 block">
+              <div class="w-12 h-12 rounded-2xl bg-indigo-600/10 text-indigo-400 flex items-center justify-center mx-auto border border-indigo-500/20">
+                <i data-lucide="upload" class="w-6 h-6"></i>
+              </div>
+              <div class="space-y-1">
+                <span class="text-sm font-semibold text-indigo-400 hover:underline">اضغط لاختيار صورة</span>
+                <p class="text-xs text-slate-400">يدعم صيغ PNG, JPG, SVG, WebP (بحد أقصى 5 ميجابايت)</p>
+              </div>
+            </label>
+          </div>
+
+          <!-- Active Logo Card -->
+          <div id="logo-active-card" class="hidden p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <img id="logo-preview-thumb" src="" alt="Logo" class="w-12 h-12 object-contain rounded-xl bg-white p-1 shadow" />
+              <div>
+                <span class="text-xs font-semibold text-white">الشعار مفعّل حالياً</span>
+                <p class="text-[11px] text-indigo-300">تم رفع مستوى تصحيح الخطأ تلقائياً إلى عالي (High)</p>
+              </div>
+            </div>
+            <button type="button" id="remove-logo-btn" class="p-2 text-rose-400 hover:bg-rose-500/20 rounded-xl transition" title="حذف الشعار">
+              <i data-lucide="trash-2" class="w-5 h-5"></i>
+            </button>
+          </div>
+
+          <!-- Preset Logos Grid -->
+          <div class="space-y-3">
+            <label class="block text-xs font-semibold text-slate-300">أيقونات وشعارات شائعة جاهزة:</label>
+            <div class="grid grid-cols-4 sm:grid-cols-8 gap-2.5">
+              <button type="button" data-preset-logo="https://cdn-icons-png.flaticon.com/512/3670/3670051.png" class="p-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-700/60 flex flex-col items-center gap-1.5 transition group">
+                <img src="https://cdn-icons-png.flaticon.com/512/3670/3670051.png" alt="WhatsApp" class="w-6 h-6 object-contain group-hover:scale-110 transition" />
+                <span class="text-[10px] text-slate-400 group-hover:text-slate-200">WhatsApp</span>
+              </button>
+              <button type="button" data-preset-logo="https://cdn-icons-png.flaticon.com/512/93/93158.png" class="p-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-700/60 flex flex-col items-center gap-1.5 transition group">
+                <img src="https://cdn-icons-png.flaticon.com/512/93/93158.png" alt="Wi-Fi" class="w-6 h-6 object-contain group-hover:scale-110 transition" />
+                <span class="text-[10px] text-slate-400 group-hover:text-slate-200">Wi-Fi</span>
+              </button>
+              <button type="button" data-preset-logo="https://cdn-icons-png.flaticon.com/512/3955/3955024.png" class="p-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-700/60 flex flex-col items-center gap-1.5 transition group">
+                <img src="https://cdn-icons-png.flaticon.com/512/3955/3955024.png" alt="Instagram" class="w-6 h-6 object-contain group-hover:scale-110 transition" />
+                <span class="text-[10px] text-slate-400 group-hover:text-slate-200">Instagram</span>
+              </button>
+              <button type="button" data-preset-logo="https://cdn-icons-png.flaticon.com/512/3536/3536505.png" class="p-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-700/60 flex flex-col items-center gap-1.5 transition group">
+                <img src="https://cdn-icons-png.flaticon.com/512/3536/3536505.png" alt="LinkedIn" class="w-6 h-6 object-contain group-hover:scale-110 transition" />
+                <span class="text-[10px] text-slate-400 group-hover:text-slate-200">LinkedIn</span>
+              </button>
+              <button type="button" data-preset-logo="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" class="p-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-700/60 flex flex-col items-center gap-1.5 transition group">
+                <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" alt="YouTube" class="w-6 h-6 object-contain group-hover:scale-110 transition" />
+                <span class="text-[10px] text-slate-400 group-hover:text-slate-200">YouTube</span>
+              </button>
+              <button type="button" data-preset-logo="https://cdn-icons-png.flaticon.com/512/1006/1006771.png" class="p-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-700/60 flex flex-col items-center gap-1.5 transition group">
+                <img src="https://cdn-icons-png.flaticon.com/512/1006/1006771.png" alt="Website" class="w-6 h-6 object-contain group-hover:scale-110 transition" />
+                <span class="text-[10px] text-slate-400 group-hover:text-slate-200">Website</span>
+              </button>
+              <button type="button" data-preset-logo="https://cdn-icons-png.flaticon.com/512/732/732200.png" class="p-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-700/60 flex flex-col items-center gap-1.5 transition group">
+                <img src="https://cdn-icons-png.flaticon.com/512/732/732200.png" alt="Email" class="w-6 h-6 object-contain group-hover:scale-110 transition" />
+                <span class="text-[10px] text-slate-400 group-hover:text-slate-200">Email</span>
+              </button>
+              <button type="button" data-preset-logo="https://cdn-icons-png.flaticon.com/512/684/684908.png" class="p-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-700/60 flex flex-col items-center gap-1.5 transition group">
+                <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Location" class="w-6 h-6 object-contain group-hover:scale-110 transition" />
+                <span class="text-[10px] text-slate-400 group-hover:text-slate-200">Location</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Logo Sliders -->
+          <div id="logo-sliders-container" class="hidden pt-4 border-t border-slate-700/60 space-y-4">
+            <div>
+              <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+                <span>حجم الشعار بالنسبة للرمز:</span>
+                <span id="logo-size-val" class="font-mono">28%</span>
+              </div>
+              <input type="range" id="logo-size-slider" min="0.15" max="0.40" step="0.01" value="0.28" class="w-full accent-indigo-500" />
+            </div>
+            <div>
+              <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+                <span>هامش التفريغ حول الشعار:</span>
+                <span id="logo-margin-val" class="font-mono">5px</span>
+              </div>
+              <input type="range" id="logo-margin-slider" min="0" max="20" value="5" class="w-full accent-indigo-500" />
+            </div>
+            <div class="flex items-center gap-3">
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="logo-clear-bg-checkbox" checked class="sr-only peer" />
+                <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+              </label>
+              <span class="text-xs text-slate-300">إخفاء النقاط خلف الشعار (حماية وضوح الأيقونة)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 4: PRESETS -->
+        <div data-tab-content="presets" class="hidden space-y-6 rounded-3xl bg-slate-800/40 border border-slate-700/80 p-6 backdrop-blur">
+          <div class="space-y-1">
+            <h3 class="text-sm font-semibold text-slate-200">نماذج وقوالب تصميم جاهزة بضغطة واحدة:</h3>
+            <p class="text-xs text-slate-400">اختر تصميماً متناسقاً تم اختياره بعناية ليتناسب مع هويتك البصرية.</p>
+          </div>
+          <div id="preset-themes-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5"></div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Sticky Live Preview & Export Hub (5 Cols) -->
+      <div class="lg:col-span-5 space-y-6 lg:sticky lg:top-6" id="qr-preview-card">
+        <div class="rounded-3xl bg-slate-800/60 border border-slate-700/80 p-6 backdrop-blur shadow-xl space-y-6">
+
+          <!-- Header of Preview Box -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <i data-lucide="eye" class="w-5 h-5 text-indigo-400"></i>
+              <span class="text-sm font-bold text-white">المعاينة المباشرة (Live Preview)</span>
+            </div>
+            <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-semibold">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              <span>تحديث فوري</span>
+            </div>
+          </div>
+
+          <!-- QR Visual Stage -->
+          <div class="flex flex-col items-center justify-center">
+            <div id="qr-preview-wrapper" class="p-6 rounded-3xl transition-all shadow-inner flex items-center justify-center relative bg-slate-900/80 border border-slate-700/60">
+              <div id="qr-canvas-container" class="flex items-center justify-center max-w-full overflow-hidden transition-transform duration-300"></div>
+            </div>
+
+            <!-- Format & Reliability Meta -->
+            <div class="mt-3 flex items-center justify-between w-full text-xs text-slate-400 px-2">
+              <span class="flex items-center gap-1">
+                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+                <span>دقة وجودة التوليد: فائقة</span>
+              </span>
+              <span id="preview-type-badge" class="font-mono text-[11px] truncate max-w-[160px]" dir="ltr">URL</span>
+            </div>
+          </div>
+
+          <!-- Error Correction Setting -->
+          <div class="space-y-2 pt-2 border-t border-slate-700/60">
+            <div class="flex items-center justify-between text-xs text-slate-300 font-medium">
+              <span>مستوى تصحيح الأخطاء (Error Correction):</span>
+              <span id="ecc-current-label" class="text-indigo-400 font-mono">Q (25%)</span>
+            </div>
+            <div class="grid grid-cols-4 gap-1.5">
+              <button type="button" data-ecc="L" class="py-1.5 px-2 rounded-xl text-xs font-semibold transition bg-slate-900/60 text-slate-400 hover:text-white border border-slate-700/50">منخفض L</button>
+              <button type="button" data-ecc="M" class="py-1.5 px-2 rounded-xl text-xs font-semibold transition bg-slate-900/60 text-slate-400 hover:text-white border border-slate-700/50">متوسط M</button>
+              <button type="button" data-ecc="Q" class="py-1.5 px-2 rounded-xl text-xs font-semibold transition bg-indigo-600 text-white shadow">مرتفع Q</button>
+              <button type="button" data-ecc="H" class="py-1.5 px-2 rounded-xl text-xs font-semibold transition bg-slate-900/60 text-slate-400 hover:text-white border border-slate-700/50">فائق H</button>
+            </div>
+          </div>
+
+          <!-- Export Settings -->
+          <div class="space-y-4 pt-2 border-t border-slate-700/60" id="export-controls-section">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1.5" for="export-format-select">صيغة التنزيل:</label>
+                <select id="export-format-select" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs font-semibold focus:ring-2 focus:ring-indigo-500">
+                  <option value="png">PNG (صورة نقطية عالية الجودة)</option>
+                  <option value="svg">SVG (فيكتور متجهي غير محدود)</option>
+                  <option value="jpeg">JPEG (صورة قياسية مضغوطة)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1.5" for="export-resolution-select">أبعاد ودقة الصورة:</label>
+                <select id="export-resolution-select" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs font-semibold focus:ring-2 focus:ring-indigo-500 font-mono" dir="ltr">
+                  <option value="512">512 × 512 px (للمواقع والبريد)</option>
+                  <option value="1024" selected>1024 × 1024 px (HD عالي الدقة)</option>
+                  <option value="2048">2048 × 2048 px (2K مناسب للطباعة)</option>
+                  <option value="4096">4096 × 4096 px (4K Ultra Print)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="space-y-2.5">
+              <button
+                type="button"
+                id="main-download-btn"
+                class="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-600 hover:from-indigo-500 hover:to-blue-500 text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-lg shadow-indigo-600/30 transition-all hover:scale-[1.01] active:scale-[0.99]"
+              >
+                <i data-lucide="download" class="w-5 h-5"></i>
+                <span id="download-btn-text">تحميل رمز QR بصيغة PNG</span>
+              </button>
+
+              <div class="grid grid-cols-2 gap-2.5">
+                <button
+                  type="button"
+                  id="copy-to-clipboard-btn"
+                  class="py-2.5 px-3 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 transition"
+                >
+                  <i data-lucide="copy" class="w-4 h-4 text-indigo-400"></i>
+                  <span>نسخ الصورة للحافظة</span>
+                </button>
+                <button
+                  type="button"
+                  id="print-qr-btn"
+                  class="py-2.5 px-3 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 transition"
+                >
+                  <i data-lucide="printer" class="w-4 h-4 text-slate-400"></i>
+                  <span>طباعة مباشرة</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
