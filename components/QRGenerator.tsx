@@ -530,6 +530,21 @@ export default function QRGenerator() {
         } else {
           qrCodeInstanceRef.current.update(options);
         }
+
+        setTimeout(() => {
+          if (!isMounted) return;
+          const canvas = qrContainerRef.current?.querySelector('canvas');
+          if (canvas) {
+            try {
+              const dataUrl = canvas.toDataURL('image/png');
+              if (dataUrl && dataUrl.startsWith('data:image/png')) {
+                setPrintImageSrc(dataUrl);
+              }
+            } catch (e) {
+              console.warn(e);
+            }
+          }
+        }, 150);
       } catch (err) {
         console.error('Failed to initialize or update QR Code:', err);
       }
@@ -2436,12 +2451,18 @@ export default function QRGenerator() {
             {dataType === 'url' ? `رابط الموقع: ${urlInput}` : dataType === 'wifi' ? `شبكة: ${wifiData.ssid || 'Wi-Fi'}` : dataType === 'vcard' ? `بطاقة عمل: ${vCardData.firstName} ${vCardData.lastName}` : 'امسح الرمز عبر كاميرا هاتفك الذكي'}
           </p>
           <div className="inline-block p-4 border-3 border-black rounded-2xl bg-white shadow-[3px_3px_0px_#000000] mb-6">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={printImageSrc || (qrContainerRef.current?.querySelector('canvas')?.toDataURL('image/png') ?? '')}
-              alt="QR Code"
-              className="w-64 h-64 object-contain mx-auto"
-            />
+            {printImageSrc ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={printImageSrc}
+                alt="QR Code"
+                className="w-64 h-64 object-contain mx-auto"
+              />
+            ) : (
+              <div className="w-64 h-64 flex items-center justify-center text-xs font-bold text-slate-400">
+                رمز QR
+              </div>
+            )}
           </div>
           <p className="text-sm font-black text-black">📷 امسح الرمز بواسطة كاميرا هاتفك الذكي</p>
           <p className="text-[10px] font-bold text-slate-500 mt-4 pt-3 border-t border-slate-300">
