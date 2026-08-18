@@ -10,6 +10,7 @@ const cairo = Cairo({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://qr-web-ten-beta.vercel.app'),
   title: 'مولّد رموز الاستجابة السريعة الاحترافي | QR Code Generator',
   description: 'منصة احترافية وسريعة لتوليد وتصميم رموز QR عالية الدقة مجاناً بالكامل. تخصيص الألوان، التدرجات، الشعارات، وتصدير بجودات تصل إلى 4K.',
   verification: {
