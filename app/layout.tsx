@@ -78,12 +78,19 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
+      { url: '/favicon.ico', sizes: '48x48' },
+      { url: '/favicon-48x48.png', type: 'image/png', sizes: '48x48' },
+      { url: '/favicon-32x32.png', type: 'image/png', sizes: '32x32' },
+      { url: '/icon.png', type: 'image/png', sizes: '512x512' },
       { url: '/icon', type: 'image/png', sizes: '512x512' },
     ],
     apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
       { url: '/apple-icon', sizes: '180x180', type: 'image/png' },
     ],
+    shortcut: ['/favicon.ico'],
   },
+  manifest: '/site.webmanifest',
   other: {
     'google-site-verification': 'N-2y_Klcge7a2tlkTLIO8eJsqwFnDecrN5yvh1M3Moc',
     'thumbnail': 'https://qr-web-ten-beta.vercel.app/opengraph-image',
